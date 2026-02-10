@@ -2,7 +2,10 @@ import os
 
 import re
 from setuptools import setup
-from pkg_resources import parse_version
+try:
+	from pkg_resources import parse_version
+except ModuleNotFoundError:
+	from distutils.version import LooseVersion as parse_version
 import subprocess
 import shutil
 import sys
