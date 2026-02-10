@@ -6,10 +6,14 @@ from pkg_resources import parse_version
 import subprocess
 import shutil
 import sys
-import torch
-from glob import glob
-from torch.utils.cpp_extension import BuildExtension, CUDAExtension
 
+try:
+	import torch
+	from torch.utils.cpp_extension import BuildExtension, CUDAExtension
+except ModuleNotFoundError:
+	torch = None
+	BuildExtension = CUDAExtension = None
+from glob import glob
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 ROOT_DIR = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 
@@ -41,6 +45,19 @@ with open(os.path.join(ROOT_DIR, "CMakeLists.txt"), "r") as cmakelists:
 			break
 
 print(f"Building PyTorch extension for tiny-cuda-nn version {VERSION}")
+
+if torch is None:
+	setup(
+		name="tinycudann",
+		version=VERSION,
+		description="tiny-cuda-nn extension for PyTorch",
+		long_description="tiny-cuda-nn extension for PyTorch",
+		packages=["tinycudann"],
+		install_requires=["torch"],
+		ext_modules=[],
+		cmdclass={},
+	)
+	raise SystemExit(0)
 
 ext_modules = []
 
